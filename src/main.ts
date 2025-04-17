@@ -19,18 +19,29 @@ type Report = {
 const reportAcudits: Report[] = []
 let acuditActual: string = ""
 
+const mostrarError = (missatge: string): void => {
+  alert(`⚠️ Error: ${missatge}`)
+}
+
 const carregarAcudit = async (): Promise<void> => {
   try {
     const resposta = await fetch("https://official-joke-api.appspot.com/jokes/random")
+
+    if (!resposta.ok) {
+      throw new Error("No s'ha pogut obtenir l'acudit. Torna-ho a intentar més tard.")
+    }
+
     const dades: Acudit = await resposta.json()
     acuditActual = `${dades.setup} ${dades.punchline}`
     setupEl.textContent = dades.setup
     punchlineEl.textContent = dades.punchline
 
   } catch (error) {
+    const missatge = (error as Error).message || "S'ha produït un error desconegut."
     setupEl.textContent = "No s'ha pogut carregar l'acudit."
     punchlineEl.textContent = ""
-    console.error("Error carregant acudit:", (error as Error).message)
+    mostrarError(missatge)
+    console.error("Error carregant acudit:", missatge)
   }
 }
 
