@@ -25,6 +25,25 @@ body {
   color: #333;
 }
 
+#ciutat {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid #00c2b3;
+  background-color: white;
+  color: #00c2b3;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#ciutat:hover {
+  background-color: #00c2b3;
+  color: white;
+}
+
 .contenidor {
   background: white;
   padding: 2rem;
@@ -59,6 +78,7 @@ h1 {
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  margin-top: 1rem;
 }
 
 #seguent:hover {
@@ -67,7 +87,6 @@ h1 {
 
 body::after {
   content: "";
-  /* background: url('https://images.unsplash.com/photo-1543269865-cbf427effbad') no-repeat bottom center; */
   background-size: cover;
   opacity: 0.2;
   position: absolute;

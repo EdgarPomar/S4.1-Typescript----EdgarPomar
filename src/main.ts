@@ -2,6 +2,8 @@ const setupEl = document.getElementById("setup") as HTMLParagraphElement
 const punchlineEl = document.getElementById("punchline") as HTMLParagraphElement
 const buttonSeguent = document.getElementById("seguent") as HTMLButtonElement
 const valoracioButtons = document.querySelectorAll<HTMLButtonElement>("#valoracio button")
+const meteoEl = document.getElementById("meteo") as HTMLParagraphElement
+const selectCiutat = document.getElementById("ciutat") as HTMLSelectElement
 
 type Acudit = {
   id: number
@@ -27,47 +29,61 @@ const carregarAcudit = async (): Promise<void> => {
   try {
     const resposta = await fetch("https://official-joke-api.appspot.com/jokes/random")
 
-    if (!resposta.ok) {
-      throw new Error("No s'ha pogut obtenir l'acudit. Torna-ho a intentar més tard.")
-    }
+    if (!resposta.ok) throw new Error("No s'ha pogut obtenir l'acudit.")
 
     const dades: Acudit = await resposta.json()
     acuditActual = `${dades.setup} ${dades.punchline}`
     setupEl.textContent = dades.setup
     punchlineEl.textContent = dades.punchline
-
   } catch (error) {
     const missatge = (error as Error).message || "S'ha produït un error desconegut."
     setupEl.textContent = "No s'ha pogut carregar l'acudit."
     punchlineEl.textContent = ""
     mostrarError(missatge)
-    console.error("Error carregant acudit:", missatge)
   }
 }
 
-const calcularMitjana = (): number => {
-  const totalPuntuacions = reportAcudits.reduce((acc, curr) => acc + curr.score, 0)
-  return totalPuntuacions / reportAcudits.length || 0
+const carregarTemps = async (ciutat: string): Promise<void> => {
+  try {
+    const resposta = await fetch("https://www.el-tiempo.net/api/json/v2/home")
+    const dades = await resposta.json()
+    const ciutatTroba = dades.ciudades.find((item: any) => item.name.toLowerCase() === ciutat.toLowerCase())
+
+    if (ciutatTroba) {
+      meteoEl.innerHTML = `☀️ Temps a <strong>${ciutatTroba.name}</strong>: ${ciutatTroba.stateSky.description}`
+    } else {
+      meteoEl.textContent = `No s'ha trobat el temps per ${ciutat}`
+    }
+  } catch (error) {
+    meteoEl.textContent = "No s'ha pogut carregar la informació meteorològica."
+    console.error("Error temps:", error)
+  }
 }
 
-valoracioButtons.forEach((boto: HTMLButtonElement) => {
+selectCiutat.addEventListener("change", () => {
+  carregarTemps(selectCiutat.value)
+})
+
+const calcularMitjana = (): number => {
+  const total = reportAcudits.reduce((acc, curr) => acc + curr.score, 0)
+  return total / reportAcudits.length || 0
+}
+
+valoracioButtons.forEach(boto => {
   boto.addEventListener("click", () => {
-    const score: number = Number(boto.dataset.score)
-    const dataISO: string = new Date().toISOString()
-    const existent: Report | undefined = reportAcudits.find(item => item.joke === acuditActual)
+    const score = Number(boto.dataset.score)
+    const existent = reportAcudits.find(item => item.joke === acuditActual)
+    const data = new Date().toISOString()
 
     if (existent) {
       existent.score = score
-      existent.date = dataISO
+      existent.date = data
     } else {
-      reportAcudits.push({
-        joke: acuditActual,
-        score,
-        date: dataISO
-      })
+      reportAcudits[reportAcudits.length] = { joke: acuditActual, score, date: data }
     }
-    console.log("📊 Mitjana actual:", calcularMitjana())
-    console.log("📋 Report actualitzat:", reportAcudits)
+
+    console.log("📊 Mitjana:", calcularMitjana())
+    console.log("📋 Reports:", reportAcudits)
   })
 })
 
@@ -76,3 +92,4 @@ buttonSeguent.addEventListener("click", () => {
 })
 
 carregarAcudit()
+carregarTemps(selectCiutat.value)

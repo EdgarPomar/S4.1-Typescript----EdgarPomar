@@ -1,12 +1,21 @@
 <!DOCTYPE html>
 <html lang="ca">
+
 <head>
   <meta charset="UTF-8" />
   <title>Acudits</title>
   <link rel="stylesheet" href="./css/styles.css" />
 </head>
+
 <body>
-  <p class="temps">Avui: parcialment ennuvolat</p>
+  <p class="temps" id="meteo">Carregant el temps...</p>
+  <select id="ciutat">
+    <option value="Madrid">Madrid</option>
+    <option value="Barcelona">Barcelona</option>
+    <option value="Valencia">Valencia</option>
+    <option value="Sevilla">Sevilla</option>
+    <option value="Bilbao">Bilbao</option>
+  </select>
 
   <div class="contenidor">
     <h1>Preparat per riure? 🤣</h1>
@@ -18,12 +27,11 @@
         <button data-score="2">🙂</button>
         <button data-score="3">😂</button>
       </div>
-
-    
       <button id="seguent">Següent acudit</button>
     </div>
   </div>
 
   <script src="./dist/main.js" defer></script>
 </body>
+
 </html>
