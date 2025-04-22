@@ -6,8 +6,11 @@
 
 body {
   font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to bottom, #ffffff, #dff6fd);
-  min-height: 100vh;
+  background-image: url('../public/img/tenor.gif');  /* Ruta del archivo GIF */
+  background-size: cover;  /* Hace que la imagen cubra todo el cuerpo */
+  background-position: center;  /* Centra la imagen */
+  background-attachment: fixed;  /* Mantiene el fondo fijo al hacer scroll */
+  min-height: 100vh;  /* Asegura que el fondo cubra toda la pantalla */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -22,7 +25,7 @@ body {
   top: 1rem;
   left: 1rem;
   font-size: 0.9rem;
-  color: #333;
+  color: white;  /* Cambio aquí para que el texto sea blanco */
 }
 
 #ciutat {
@@ -83,18 +86,6 @@ h1 {
 
 #seguent:hover {
   background-color: #009e95;
-}
-
-body::after {
-  content: "";
-  background-size: cover;
-  opacity: 0.2;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  top: 50%;
-  z-index: 1;
 }
 
 #valoracio {
