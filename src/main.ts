@@ -18,6 +18,23 @@ type Report = {
   date: string
 }
 
+const iconesTemps: { [clau: string]: string } = {
+  "Despejado": "../public/img/despejado.png",
+  "Nuboso": "../public/img/nuboso.png",
+  "Cubierto": "../public/img/cubierto.png",
+  "Intervalos nubosos": "../public/img/intervalos_nuvosos.png",
+  "Muy nuboso": "../public/img/muy_nuboso.png",
+  "Poco nuboso": "../public/img/nublado.png",
+  "Chubascos": "../public/img/chubascos.png",
+  "Lluvia": "../public/img/lluvia.png",
+  "Sol": "../public/img/sol.png",
+  "Intervalos nubosos con lluvia": "../public/img/intervalos_nuvosos_lluvia.png",
+  "Muy nuboso con lluvia escasa": "../public/img/lluvia_escasa.png",
+  "Cubierto con lluvia": "../public/img/cubierto_lluvia.png"
+  // Afegir altres segons calgui...
+}
+
+
 const reportAcudits: Report[] = []
 let acuditActual: string = ""
 
@@ -50,7 +67,17 @@ const carregarTemps = async (ciutat: string): Promise<void> => {
     const ciutatTroba = dades.ciudades.find((item: any) => item.name.toLowerCase() === ciutat.toLowerCase())
 
     if (ciutatTroba) {
-      meteoEl.innerHTML = `☀️ Temps a <strong>${ciutatTroba.name}</strong>: ${ciutatTroba.stateSky.description}`
+      const descripcio = ciutatTroba.stateSky.description
+      const fitxerImatge = iconesTemps[descripcio]
+
+      if (fitxerImatge) {
+        meteoEl.innerHTML = `
+          ☁️ Temps a <strong>${ciutatTroba.name}</strong>: ${descripcio}
+          <img src="/img/${fitxerImatge}" alt="${descripcio}" style="width: 32px; height: 32px; vertical-align: middle;">
+        `
+      } else {
+        meteoEl.innerHTML = `🌈 Temps a <strong>${ciutatTroba.name}</strong>: ${descripcio} (sense icona)`
+      }
     } else {
       meteoEl.textContent = `No s'ha trobat el temps per ${ciutat}`
     }
@@ -59,6 +86,8 @@ const carregarTemps = async (ciutat: string): Promise<void> => {
     console.error("Error temps:", error)
   }
 }
+
+
 
 selectCiutat.addEventListener("change", () => {
   carregarTemps(selectCiutat.value)

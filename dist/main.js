@@ -14,6 +14,21 @@ const buttonSeguent = document.getElementById("seguent");
 const valoracioButtons = document.querySelectorAll("#valoracio button");
 const meteoEl = document.getElementById("meteo");
 const selectCiutat = document.getElementById("ciutat");
+const iconesTemps = {
+    "Despejado": "../public/img/despejado.png",
+    "Nuboso": "../public/img/nuboso.png",
+    "Cubierto": "../public/img/cubierto.png",
+    "Intervalos nubosos": "../public/img/intervalos_nuvosos.png",
+    "Muy nuboso": "../public/img/muy_nuboso.png",
+    "Poco nuboso": "../public/img/nublado.png",
+    "Chubascos": "../public/img/chubascos.png",
+    "Lluvia": "../public/img/lluvia.png",
+    "Sol": "../public/img/sol.png",
+    "Intervalos nubosos con lluvia": "../public/img/intervalos_nuvosos_lluvia.png",
+    "Muy nuboso con lluvia escasa": "../public/img/lluvia_escasa.png",
+    "Cubierto con lluvia": "../public/img/cubierto_lluvia.png"
+    // Afegir altres segons calgui...
+};
 const reportAcudits = [];
 let acuditActual = "";
 const mostrarError = (missatge) => {
@@ -42,7 +57,17 @@ const carregarTemps = (ciutat) => __awaiter(void 0, void 0, void 0, function* ()
         const dades = yield resposta.json();
         const ciutatTroba = dades.ciudades.find((item) => item.name.toLowerCase() === ciutat.toLowerCase());
         if (ciutatTroba) {
-            meteoEl.innerHTML = `☀️ Temps a <strong>${ciutatTroba.name}</strong>: ${ciutatTroba.stateSky.description}`;
+            const descripcio = ciutatTroba.stateSky.description;
+            const fitxerImatge = iconesTemps[descripcio];
+            if (fitxerImatge) {
+                meteoEl.innerHTML = `
+          ☁️ Temps a <strong>${ciutatTroba.name}</strong>: ${descripcio}
+          <img src="/img/${fitxerImatge}" alt="${descripcio}" style="width: 32px; height: 32px; vertical-align: middle;">
+        `;
+            }
+            else {
+                meteoEl.innerHTML = `🌈 Temps a <strong>${ciutatTroba.name}</strong>: ${descripcio} (sense icona)`;
+            }
         }
         else {
             meteoEl.textContent = `No s'ha trobat el temps per ${ciutat}`;
