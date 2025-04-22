@@ -5,20 +5,10 @@ const valoracioButtons = document.querySelectorAll<HTMLButtonElement>("#valoraci
 const meteoEl = document.getElementById("meteo") as HTMLParagraphElement
 const selectCiutat = document.getElementById("ciutat") as HTMLSelectElement
 
-type Acudit = {
-  id: number
-  type: string
-  setup: string
-  punchline: string
-}
+let indexAcudit = 0
+const fontsDisponibles = ["joke", "chuck", "dad"]
 
-type Report = {
-  joke: string
-  score: number
-  date: string
-}
-
-const iconesTemps: { [clau: string]: string } = {
+const iconesTemps: Record<string, string> = {
   "Despejado": "../public/img/despejado.png",
   "Nuboso": "../public/img/nuboso.png",
   "Cubierto": "../public/img/cubierto.png",
@@ -31,27 +21,61 @@ const iconesTemps: { [clau: string]: string } = {
   "Intervalos nubosos con lluvia": "../public/img/intervalos_nuvosos_lluvia.png",
   "Muy nuboso con lluvia escasa": "../public/img/lluvia_escasa.png",
   "Cubierto con lluvia": "../public/img/cubierto_lluvia.png"
-  // Afegir altres segons calgui...
 }
 
+type Acudit = {
+  id?: number
+  type?: string
+  setup: string
+  punchline: string
+}
+
+type Report = {
+  joke: string
+  score: number
+  date: string
+}
 
 const reportAcudits: Report[] = []
-let acuditActual: string = ""
+let acuditActual = ""
 
 const mostrarError = (missatge: string): void => {
   alert(`⚠️ Error: ${missatge}`)
 }
 
+const obtenirDades = async (url: string, headers?: HeadersInit) => {
+  const resposta = await fetch(url, { headers })
+  if (!resposta.ok) throw new Error("Error a l'obtenir dades")
+  return resposta.json()
+}
+
+const obtenirAcudit = async (font: string): Promise<Acudit> => {
+  switch (font) {
+    case "joke":
+      const dadesJoke = await obtenirDades("https://official-joke-api.appspot.com/jokes/random")
+      return { setup: dadesJoke.setup, punchline: dadesJoke.punchline }
+
+    case "chuck":
+      const dadesChuck = await obtenirDades("https://api.chucknorris.io/jokes/random")
+      return { setup: "Chuck Norris 🤠", punchline: dadesChuck.value }
+
+    case "dad":
+      const dadesDad = await obtenirDades("https://icanhazdadjoke.com/", { Accept: "application/json" })
+      return { setup: "Acudit de pare 👨", punchline: dadesDad.joke }
+
+    default:
+      throw new Error("Font d'acudits no reconeguda.")
+  }
+}
+
 const carregarAcudit = async (): Promise<void> => {
   try {
-    const resposta = await fetch("https://official-joke-api.appspot.com/jokes/random")
+    const font = fontsDisponibles[indexAcudit++ % fontsDisponibles.length]
+    const acudit = await obtenirAcudit(font)
 
-    if (!resposta.ok) throw new Error("No s'ha pogut obtenir l'acudit.")
-
-    const dades: Acudit = await resposta.json()
-    acuditActual = `${dades.setup} ${dades.punchline}`
-    setupEl.textContent = dades.setup
-    punchlineEl.textContent = dades.punchline
+    acuditActual = `${acudit.setup} ${acudit.punchline}`
+    setupEl.textContent = acudit.setup
+    punchlineEl.textContent = acudit.punchline
   } catch (error) {
     const missatge = (error as Error).message || "S'ha produït un error desconegut."
     setupEl.textContent = "No s'ha pogut carregar l'acudit."
@@ -62,8 +86,7 @@ const carregarAcudit = async (): Promise<void> => {
 
 const carregarTemps = async (ciutat: string): Promise<void> => {
   try {
-    const resposta = await fetch("https://www.el-tiempo.net/api/json/v2/home")
-    const dades = await resposta.json()
+    const dades = await obtenirDades("https://www.el-tiempo.net/api/json/v2/home")
     const ciutatTroba = dades.ciudades.find((item: any) => item.name.toLowerCase() === ciutat.toLowerCase())
 
     if (ciutatTroba) {
@@ -73,7 +96,7 @@ const carregarTemps = async (ciutat: string): Promise<void> => {
       if (fitxerImatge) {
         meteoEl.innerHTML = `
           ☁️ Temps a <strong>${ciutatTroba.name}</strong>: ${descripcio}
-          <img src="/img/${fitxerImatge}" alt="${descripcio}" style="width: 32px; height: 32px; vertical-align: middle;">
+          <img src="${fitxerImatge}" alt="${descripcio}" style="width: 32px; height: 32px; vertical-align: middle;">
         `
       } else {
         meteoEl.innerHTML = `🌈 Temps a <strong>${ciutatTroba.name}</strong>: ${descripcio} (sense icona)`
@@ -87,38 +110,33 @@ const carregarTemps = async (ciutat: string): Promise<void> => {
   }
 }
 
+const calcularMitjana = (): number =>
+  reportAcudits.length ? reportAcudits.reduce((acc, curr) => acc + curr.score, 0) / reportAcudits.length : 0
 
+const enregistrarValoracio = (score: number): void => {
+  const existent = reportAcudits.find(item => item.joke === acuditActual)
+  const data = new Date().toISOString()
 
-selectCiutat.addEventListener("change", () => {
-  carregarTemps(selectCiutat.value)
-})
+  if (existent) {
+    existent.score = score
+    existent.date = data
+  } else {
+    reportAcudits[reportAcudits.length] = { joke: acuditActual, score, date: data }
+  }
 
-const calcularMitjana = (): number => {
-  const total = reportAcudits.reduce((acc, curr) => acc + curr.score, 0)
-  return total / reportAcudits.length || 0
+  console.log("📊 Mitjana:", calcularMitjana())
+  console.log("📋 Reports:", reportAcudits)
 }
 
+// Events
 valoracioButtons.forEach(boto => {
-  boto.addEventListener("click", () => {
-    const score = Number(boto.dataset.score)
-    const existent = reportAcudits.find(item => item.joke === acuditActual)
-    const data = new Date().toISOString()
-
-    if (existent) {
-      existent.score = score
-      existent.date = data
-    } else {
-      reportAcudits[reportAcudits.length] = { joke: acuditActual, score, date: data }
-    }
-
-    console.log("📊 Mitjana:", calcularMitjana())
-    console.log("📋 Reports:", reportAcudits)
-  })
+  boto.addEventListener("click", () => enregistrarValoracio(Number(boto.dataset.score)))
 })
 
-buttonSeguent.addEventListener("click", () => {
-  carregarAcudit()
-})
+buttonSeguent.addEventListener("click", carregarAcudit)
 
+selectCiutat.addEventListener("change", () => carregarTemps(selectCiutat.value))
+
+// Inicialització
 carregarAcudit()
 carregarTemps(selectCiutat.value)

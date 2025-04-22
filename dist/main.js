@@ -14,6 +14,8 @@ const buttonSeguent = document.getElementById("seguent");
 const valoracioButtons = document.querySelectorAll("#valoracio button");
 const meteoEl = document.getElementById("meteo");
 const selectCiutat = document.getElementById("ciutat");
+let indexAcudit = 0;
+const fontsDisponibles = ["joke", "chuck", "dad"];
 const iconesTemps = {
     "Despejado": "../public/img/despejado.png",
     "Nuboso": "../public/img/nuboso.png",
@@ -27,22 +29,40 @@ const iconesTemps = {
     "Intervalos nubosos con lluvia": "../public/img/intervalos_nuvosos_lluvia.png",
     "Muy nuboso con lluvia escasa": "../public/img/lluvia_escasa.png",
     "Cubierto con lluvia": "../public/img/cubierto_lluvia.png"
-    // Afegir altres segons calgui...
 };
 const reportAcudits = [];
 let acuditActual = "";
 const mostrarError = (missatge) => {
     alert(`⚠️ Error: ${missatge}`);
 };
+const obtenirDades = (url, headers) => __awaiter(void 0, void 0, void 0, function* () {
+    const resposta = yield fetch(url, { headers });
+    if (!resposta.ok)
+        throw new Error("Error a l'obtenir dades");
+    return resposta.json();
+});
+const obtenirAcudit = (font) => __awaiter(void 0, void 0, void 0, function* () {
+    switch (font) {
+        case "joke":
+            const dadesJoke = yield obtenirDades("https://official-joke-api.appspot.com/jokes/random");
+            return { setup: dadesJoke.setup, punchline: dadesJoke.punchline };
+        case "chuck":
+            const dadesChuck = yield obtenirDades("https://api.chucknorris.io/jokes/random");
+            return { setup: "Chuck Norris 🤠", punchline: dadesChuck.value };
+        case "dad":
+            const dadesDad = yield obtenirDades("https://icanhazdadjoke.com/", { Accept: "application/json" });
+            return { setup: "Acudit de pare 👨", punchline: dadesDad.joke };
+        default:
+            throw new Error("Font d'acudits no reconeguda.");
+    }
+});
 const carregarAcudit = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const resposta = yield fetch("https://official-joke-api.appspot.com/jokes/random");
-        if (!resposta.ok)
-            throw new Error("No s'ha pogut obtenir l'acudit.");
-        const dades = yield resposta.json();
-        acuditActual = `${dades.setup} ${dades.punchline}`;
-        setupEl.textContent = dades.setup;
-        punchlineEl.textContent = dades.punchline;
+        const font = fontsDisponibles[indexAcudit++ % fontsDisponibles.length];
+        const acudit = yield obtenirAcudit(font);
+        acuditActual = `${acudit.setup} ${acudit.punchline}`;
+        setupEl.textContent = acudit.setup;
+        punchlineEl.textContent = acudit.punchline;
     }
     catch (error) {
         const missatge = error.message || "S'ha produït un error desconegut.";
@@ -53,8 +73,7 @@ const carregarAcudit = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 const carregarTemps = (ciutat) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const resposta = yield fetch("https://www.el-tiempo.net/api/json/v2/home");
-        const dades = yield resposta.json();
+        const dades = yield obtenirDades("https://www.el-tiempo.net/api/json/v2/home");
         const ciutatTroba = dades.ciudades.find((item) => item.name.toLowerCase() === ciutat.toLowerCase());
         if (ciutatTroba) {
             const descripcio = ciutatTroba.stateSky.description;
@@ -62,7 +81,7 @@ const carregarTemps = (ciutat) => __awaiter(void 0, void 0, void 0, function* ()
             if (fitxerImatge) {
                 meteoEl.innerHTML = `
           ☁️ Temps a <strong>${ciutatTroba.name}</strong>: ${descripcio}
-          <img src="/img/${fitxerImatge}" alt="${descripcio}" style="width: 32px; height: 32px; vertical-align: middle;">
+          <img src="${fitxerImatge}" alt="${descripcio}" style="width: 32px; height: 32px; vertical-align: middle;">
         `;
             }
             else {
@@ -78,31 +97,26 @@ const carregarTemps = (ciutat) => __awaiter(void 0, void 0, void 0, function* ()
         console.error("Error temps:", error);
     }
 });
-selectCiutat.addEventListener("change", () => {
-    carregarTemps(selectCiutat.value);
-});
-const calcularMitjana = () => {
-    const total = reportAcudits.reduce((acc, curr) => acc + curr.score, 0);
-    return total / reportAcudits.length || 0;
+const calcularMitjana = () => reportAcudits.length ? reportAcudits.reduce((acc, curr) => acc + curr.score, 0) / reportAcudits.length : 0;
+const enregistrarValoracio = (score) => {
+    const existent = reportAcudits.find(item => item.joke === acuditActual);
+    const data = new Date().toISOString();
+    if (existent) {
+        existent.score = score;
+        existent.date = data;
+    }
+    else {
+        reportAcudits[reportAcudits.length] = { joke: acuditActual, score, date: data };
+    }
+    console.log("📊 Mitjana:", calcularMitjana());
+    console.log("📋 Reports:", reportAcudits);
 };
+// Events
 valoracioButtons.forEach(boto => {
-    boto.addEventListener("click", () => {
-        const score = Number(boto.dataset.score);
-        const existent = reportAcudits.find(item => item.joke === acuditActual);
-        const data = new Date().toISOString();
-        if (existent) {
-            existent.score = score;
-            existent.date = data;
-        }
-        else {
-            reportAcudits[reportAcudits.length] = { joke: acuditActual, score, date: data };
-        }
-        console.log("📊 Mitjana:", calcularMitjana());
-        console.log("📋 Reports:", reportAcudits);
-    });
+    boto.addEventListener("click", () => enregistrarValoracio(Number(boto.dataset.score)));
 });
-buttonSeguent.addEventListener("click", () => {
-    carregarAcudit();
-});
+buttonSeguent.addEventListener("click", carregarAcudit);
+selectCiutat.addEventListener("change", () => carregarTemps(selectCiutat.value));
+// Inicialització
 carregarAcudit();
 carregarTemps(selectCiutat.value);
