@@ -43,20 +43,20 @@ jokes. These include:
 
 3. JokeAPI
 
-Getting Started Prerequisites
+## Getting Started 
+### Prerequisites
 
-Web browser (Chrome, Firefox, etc.)
+- Web browser (Chrome, Firefox, etc.)
 
-An internet connection to fetch the weather and jokes data.
+- An internet connection to fetch the weather and jokes data.
 
-Installation
+### Installation
 
-Clone the repository: bashCopiarEditargit clone
-https://github.com/yourusername/weather-jokes-app.git
-
-Open the project folder: bashCopiarEditarcd weather-jokes-app
-
-Open index.html in your browser to view the app.
+1. Clone the repository:
+  ```bash
+  git clone https://github.com/EdgarPomar/S4.1-Typescript----EdgarPomar.git
+  ```
+2. Open index.html in your browser to view the app.
 
 API Integration The app uses the following APIs:
 
@@ -86,7 +86,6 @@ Push to your forked repository.
 
 Open a pull request to the original repository.
 
-License This project is open-source and available under the MIT License.
 Future Improvements
 
 Add more APIs for jokes and weather data.
@@ -97,6 +96,3 @@ Enhance the scoring system for better joke interaction.
 
 Improve mobile responsiveness for a smoother user experience.
 
-Contact Feel free to open issues or contribute to this project by
-submitting pull requests. For any questions or further suggestions,
-please contact \[Your Name\] via \[your email/contact method\].
