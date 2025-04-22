@@ -58,41 +58,41 @@ jokes. These include:
   ```
 2. Open index.html in your browser to view the app.
 
-API Integration The app uses the following APIs:
+### API Integration T
 
-Weather API: To get the weather data by city.
+The app uses the following APIs:
+1. Weather API: To get the weather data by city.
+   
+- Endpoint: https://www.el-tiempo.net/api/json/v2/home
+- Example: https://www.el-tiempo.net/api/json/v2/home?city=NewYork
 
-Endpoint: https://www.el-tiempo.net/api/json/v2/home
+2. Jokes APIs:
 
-Example: https://www.el-tiempo.net/api/json/v2/home?city=NewYork
+- Chuck Norris Jokes: Provides random Chuck Norris jokes.
 
-Jokes APIs:
+- Dad Jokes API: Provides a collection of dad jokes.
 
-Chuck Norris Jokes: Provides random Chuck Norris jokes.
+- JokeAPI: A general joke API that fetches various types of jokes.
 
-Dad Jokes API: Provides a collection of dad jokes.
+### How to Contribute
 
-JokeAPI: A general joke API that fetches various types of jokes.
+1. Fork this repository.
 
-How to Contribute
+2. Create a new branch for your feature or bug fix.
 
-Fork this repository.
+3. Make your changes and commit them.
 
-Create a new branch for your feature or bug fix.
+4. Push to your forked repository.
 
-Make your changes and commit them.
+5. Open a pull request to the original repository.
 
-Push to your forked repository.
+### Future Improvements
 
-Open a pull request to the original repository.
+- Add more APIs for jokes and weather data.
 
-Future Improvements
+- Implement user authentication and a custom dashboard.
 
-Add more APIs for jokes and weather data.
+- Enhance the scoring system for better joke interaction.
 
-Implement user authentication and a custom dashboard.
-
-Enhance the scoring system for better joke interaction.
-
-Improve mobile responsiveness for a smoother user experience.
+- Improve mobile responsiveness for a smoother user experience.
 
