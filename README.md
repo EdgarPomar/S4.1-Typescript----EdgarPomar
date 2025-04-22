@@ -27,7 +27,7 @@ desktop and mobile users.
 - CSS3: Styling with Flexbox and custom styling for buttons, backgrounds,
 etc.
 
-- JavaScript: Logic for handling API requests, joke rating system, and
+- TypeScript: Logic for handling API requests, joke rating system, and
 user interaction.
 
 - Weather API: The app fetches weather data from
